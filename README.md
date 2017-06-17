@@ -18,16 +18,9 @@ C++ Implementation of a binomial heap
 * Parent
   - Node with reference to the child list the self is in
 * Order
-  - Number of node's children 
-#### Time Complexeties
-* Θ( )
-  - asymptotic upper bound
-  - worst case
-* O( ) 
-  - asymptotic tight  bound 
-  - (leading factor, ex x^3 + logn O(x^3)) 
+  - Number of node's children
  
-Operation | Big O
+Operation | Time Complexity 
 ----------|-------
 getMin    | Θ(logn)
 extractMin| Θ(logn)
