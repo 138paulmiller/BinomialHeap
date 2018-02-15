@@ -9,8 +9,8 @@
 #include <limits>
 #include <stdlib.h>
 #include <time.h>
-#include "binomialNode.h"
-#include "binomialHeap.h"
+#include "../../src/heaps/binomial_heap/binomial_heap.hpp"
+
 
 int main() {
 	binomialHeap<long long> heap;
@@ -23,7 +23,7 @@ int main() {
 	now = clock();
 	for(int i=0; i < n; i++)
 	{
-		x= rand()%100+1; //1-100 values
+		x= rand()%999999+1; //1-100 values
 		heap.insert(x);
 	}
 	std::cout << "\nInserted " << n << " items in " << std::setprecision(5)  << (clock() - now)/(double)CLOCKS_PER_SEC << " seconds...\n";
@@ -38,8 +38,10 @@ int main() {
 	int control = 0;
 	while(control != -1)
 	{
-		std::cout << "\nDelete   Key: 1 <key>"
-				     "\nDecrease Key: 2 <key> <newKey>\n:";
+		std::cout << "\nKeys are from [ 1 - 999999]"
+					"\nDelete   Key: 1 <key>"
+				     "\nDecrease Key: 2 <key> <newKey>\n:"
+				     "\nExit        :-1 <key> <newKey>\n";
 		if(!(std::cin >> control))
 		{
 			std::cin.clear();
@@ -70,10 +72,10 @@ int main() {
 			else
 				std::cout << "\nCould not delete!";
 		}
-		std::cin.get();
-
+		if (control != -1)
+			std::cin.get();
 	}
-	std::cout << "\nRemoving...\n";
+	std::cout << "\nCalling Remove Min on all keys...\n";
 	std::flush(std::cout);
 	int j = 0;
 	now = clock();
