@@ -5,7 +5,7 @@ g++ -std=c++11 test_binomialheap.cpp -o test_binomialheap
 #include <limits>
 #include <stdlib.h>
 #include <time.h>
-#include "../../src/heaps/binomial_heap/binomial_heap.hpp"
+#include "binomial_heap.hpp"
 
 
 int main() {
@@ -59,15 +59,9 @@ int main() {
 			now = clock();
 			try
 			{
-				if(heap.decreaseKey(num, num2))
-				{
-					std::cout << "\n\nDecreased " << num << " -> " << num2 << " in " << std::setprecision(5) << (clock() - now)/(double)CLOCKS_PER_SEC << " seconds...\n";
-				}
-				else
-				{
-					std::cout << "\nCould not find key!";
-				
-				}
+				heap.decreaseKey(num, num2);
+				std::cout 	<< "\n\nDecreased " << num << " -> " << num2 << " in " << std::setprecision(5) 
+							<< (clock() - now)/(double)CLOCKS_PER_SEC << " seconds...\n";
 			}
 			catch(BinomialHeap<long long>::Exception &e)
 			{
@@ -83,14 +77,10 @@ int main() {
 			now = clock();
 			try
 			{
-				if(heap.deleteKey(num))
-				{
-					std::cout << "\n\nDeleted " << num << " in " << std::setprecision(5) << (clock() - now)/(double)CLOCKS_PER_SEC << " seconds...\n";
-				}
-				else
-				{
-					std::cout << "\nCould not find key!";
-				}
+				heap.deleteKey(num);
+				std::cout 	<< "\n\nDeleted " << num << " in " << std::setprecision(5) 
+							<< (clock() - now)/(double)CLOCKS_PER_SEC << " seconds...\n";
+
 			}
 			catch(BinomialHeap<long long>::Exception &e)
 			{
