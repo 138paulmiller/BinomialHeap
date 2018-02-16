@@ -1,10 +1,6 @@
-//============================================================================
-// Name        : bheap.cpp
-// Author      : 
-// Version     :
-// Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
-//============================================================================
+/*
+g++ -std=c++11 test_binomialheap.cpp -o test_binomialheap
+*/
 
 #include <limits>
 #include <stdlib.h>
@@ -13,11 +9,12 @@
 
 
 int main() {
-	binomialHeap<long long> heap;
+	BinomialHeap<long long> heap;
 	clock_t now;
 	srand(time(0));
 	int x;
-	long long n = 3500000;
+	long long n = 500000;
+	
 	std::cout << "\nInserting...";
 	std::flush(std::cout);
 	now = clock();
@@ -27,27 +24,32 @@ int main() {
 		heap.insert(x);
 	}
 	std::cout << "\nInserted " << n << " items in " << std::setprecision(5)  << (clock() - now)/(double)CLOCKS_PER_SEC << " seconds...\n";
-	std::fstream outFile;
-	outFile.open("heap.txt",std::fstream::out);
-	outFile.clear();
-	outFile <<"Count: " << heap.size()
-			<< "\nMinimum:" << heap.getMin();
-	heap.print(outFile);
-	outFile.close();
+	std::cout << "\nCopying Heaps\n";
+	BinomialHeap<long long> heapCopy = heap, heapAssign;
+
+	heapAssign = heapCopy;
+
 	int num  = 0, num2 = 0;
 	int control = 0;
 	while(control != -1)
 	{
-		std::cout << "\nKeys are from [ 1 - 999999]"
-					"\nDelete   Key: 1 <key>"
-				     "\nDecrease Key: 2 <key> <newKey>\n:"
-				     "\nExit        :-1 <key> <newKey>\n";
+		std::cout << "\nKeys are from [ 1 - 999999]\n"
+					 "\nDelete Key    : 1 <key>"
+				     "\nDecrease Key  : 2 <key> <newKey>"
+				     "\nClear Keys    : 3"
+				     "\nExit          :-1 <key> <newKey>\n>";
 		if(!(std::cin >> control))
 		{
 			std::cin.clear();
 		}
-
-		if(control == 2) // decrease
+		if(control == 3)
+		{
+			int n = heap.size();
+			now = clock();
+			heap.clear();
+			std::cout << "\n\nCleared " << n << " keys in " << std::setprecision(5) << (clock() - now)/(double)CLOCKS_PER_SEC << " seconds...\n";
+		}
+		else if(control == 2) // decrease
 		{
 			if(!(std::cin >> num >> num2))
 			{
@@ -55,10 +57,22 @@ int main() {
 			}
 
 			now = clock();
-			if(heap.decreaseKey(num, num2))
-				std::cout << "\n\nDecreased " << num << " -> " << num2 << " in " << std::setprecision(5) << (clock() - now)/(double)CLOCKS_PER_SEC << " seconds...\n";
-			else
-				std::cout << "\nCould not decrease!";
+			try
+			{
+				if(heap.decreaseKey(num, num2))
+				{
+					std::cout << "\n\nDecreased " << num << " -> " << num2 << " in " << std::setprecision(5) << (clock() - now)/(double)CLOCKS_PER_SEC << " seconds...\n";
+				}
+				else
+				{
+					std::cout << "\nCould not find key!";
+				
+				}
+			}
+			catch(BinomialHeap<long long>::Exception &e)
+			{
+				std::cout << e.what();
+			}
 		}
 		else if (control == 1)
 		{
@@ -67,10 +81,21 @@ int main() {
 				std::cin.clear();
 			}
 			now = clock();
-			if(heap.deleteKey(num))
-				std::cout << "\n\nDeleted " << num  << " in "<< std::setprecision(5)  << (clock() - now)/(double)CLOCKS_PER_SEC << " seconds...\n";
-			else
-				std::cout << "\nCould not delete!";
+			try
+			{
+				if(heap.deleteKey(num))
+				{
+					std::cout << "\n\nDeleted " << num << " in " << std::setprecision(5) << (clock() - now)/(double)CLOCKS_PER_SEC << " seconds...\n";
+				}
+				else
+				{
+					std::cout << "\nCould not find key!";
+				}
+			}
+			catch(BinomialHeap<long long>::Exception &e)
+			{
+				std::cout << e.what();
+			}
 		}
 		if (control != -1)
 			std::cin.get();
@@ -81,12 +106,11 @@ int main() {
 	now = clock();
 	while(!heap.isEmpty())
 	{
-		j++;
+		++j;
 		heap.extractMin();
 
 	}
 	std::cout << "Removed " << j << " items in " << std::setprecision(5) << (clock() - now)/(double)CLOCKS_PER_SEC << " seconds...";
 	std::cout << "\nEnter to exit!\n";
 	std::cin.get();
-	return 0;
 }

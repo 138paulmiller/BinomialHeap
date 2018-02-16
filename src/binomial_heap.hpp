@@ -1,9 +1,8 @@
 /*
- * bheap.h
- *
- *  Created on: Apr 14, 2017
- *      Author: 138
- */
+	Binomial Heap : Priority Queue Data Structure using C++11
+	@author:	github.com/138paulmiller
+*/
+
 
 #ifndef BINOMIALHEAP_H_
 #define BINOMIALHEAP_H_
@@ -14,138 +13,35 @@
 #include <fstream>
 #include <iomanip>
 #include <ostream>
-/*
-	Binomial Heap : Priority Queue Data Structure
 
-	@author:	github.com/138paulmiller
-*/
+#include <string>
 /*
 	bnode -
 		child    - points to node with value such that child value > parent value
 		sibling  - points to node with shared parent, creates Single linked list between children
  */
-template <typename T>
-class binomialNode
-{
-public:
-	binomialNode(T v, binomialNode<T> * parent = 0);
-	~binomialNode();
-	void addChild(binomialNode<T>* child);
-	binomialNode<T>* find(T v);
-	int size(int& i);
-	void print( std::ostream& out);
-	T value;
-	binomialNode<T>* sibling, *child, * parent;
-	int order;
-};
 
 template <typename T>
-binomialNode<T>::binomialNode(T v, binomialNode<T> * p)
-{
-	value = v;
-	parent = p;
-	sibling = child = 0;
-	order=  0;
-}
-template <typename T>
-binomialNode<T>::~binomialNode()
-{
-	//std::cout << "\nDeleting " << value;
-
-	if(child)
-		delete child;
-
-	if(sibling)
-		delete sibling;
-
-}
-
-template<typename T>
-int binomialNode<T>::size(int & i)
-{
-	i ++;
-	if(sibling)
-		sibling->size(i);
-	if(child)
-		child->size(i);
-
-	return i;
-}
-
+class BinomialNode;
 
 template <typename T>
-void binomialNode<T>::addChild(binomialNode<T>* childNode)
+class BinomialHeap
 {
-	if(childNode)
-	{
-		childNode->sibling = 0;
-		if(child)
-		{
-			binomialNode<T>* temp = child;
-			while(temp->sibling)
-				temp = temp->sibling;
-			temp->sibling = childNode;
-		}
-		else
-		{
-			child = childNode;
-		}
-		//
-		order++;
-		childNode->parent = this;
-	}
-}
-template <typename T>
-binomialNode<T>* binomialNode<T>::find(T v)
-{
-	binomialNode<T>* found = 0;
-	if(v == value)
-		return this;
-	else if(sibling)
-	{
-		found =  sibling->find(v);
-	}
-	if( value < v && ! found) //if v is larger, check children,
-	{
-		if(child)
-		{
-			found =  child->find(v);
-		}
-	}
-
-	return found;
-}
-template <typename T>
-void binomialNode<T>::print(std::ostream& out)
-{
-	out << "\nNode : " << std::setw(5) << value;
-	if(DEBUG)
-	{
-		out << "\tOrder:  " << order;
-		out << "\tParent  : " ;
-		if(parent) out  << std::setw(5) << parent ->value;
-		out << "\tSibling : " ;
-		if(sibling) out  << std::setw(5) << sibling->value;
-		out << "\tChild   : " ;
-		if(child) out << std::setw(5) << child->value;
-		if(sibling && sibling->order < order)
-			out << "********ERROR IN SIBLING ORDERING!!!******";
-	}
-	if(sibling)
-		sibling->print(out);
-	if(child)
-			child->print(out);
-
-}
-
-template <typename T>
-class binomialHeap
-{
-	friend class binomialNode<T>;
 
 public:
-	binomialHeap();
-	~binomialHeap();
+	struct Exception
+	{
+		Exception(std::string msg ):msg(msg){}
+		std::string what(){return msg;}
+		std::string msg;
+	};
+	friend class BinomialNode<T>;
+	
+	BinomialHeap();
+	BinomialHeap(const BinomialHeap& other);
+	BinomialHeap(BinomialHeap&& other);
+	BinomialHeap& operator=(const BinomialHeap& other);
+	~BinomialHeap();
 	/*
 	 * insert
 	 * 		Creates a singleton heap node with value v and
@@ -193,7 +89,7 @@ public:
 	 * 	newValue:
 	 * 		value to decrease value to
 	 * returns
-	 * 		true if successfully decreased
+	 * 		true if successfully decreased, false if key not found
 	 */
 	bool decreaseKey(T value, T newValue);
 	/*
@@ -204,8 +100,22 @@ public:
 	 *		number of nodes in heap
 	 */
 	int size();
+	/*
+	 * size
+	 * 		Checks if empty
+	 *
+	 * returns
+	 *		if empty
+	 */
 	bool isEmpty();
-	void print(std::ostream& out);
+	/*
+	 * clear
+	 * 		Removes all elements
+	 *
+	 * returns
+	 *		none
+	 */
+	void clear();
 protected:
 	/*Utility heap functions*/
 	/*
@@ -215,7 +125,7 @@ protected:
 	 * 	returns
 	 * 	 a pointer to node with value key
 	 */
-	binomialNode<T>* findKey(T v);
+	BinomialNode<T>* findKey(T v);
 	/*
 	 * unionHeap
 	 * 		Consolidates two heaps by merging them into a single
@@ -231,9 +141,9 @@ protected:
 	 * 		the root of the heap representing the union of heapA and heapB
 	 * 		such that the either heapA becomes a child of heapB or the reverse
 	 */
-	static binomialNode<T>* unionHeap(binomialNode<T>* heapA, binomialNode<T>* heapB);
+	static BinomialNode<T>* unionHeap(BinomialNode<T>* heapA, BinomialNode<T>* heapB);
 	/* mergeHeap
-	 * 		Merges two heaps into a single binomial heap by adding
+	 * 		Merges two heaps into a single Binomial heap by adding
 	 * 		all siblings of heapA and heapB into a single heap containing
 	 * 		all nodes in heapA and heapB.
 	 * 		Assumes heapA and heapB siblings are ordered by root order(sibling count)
@@ -246,62 +156,217 @@ protected:
 	 * 		the root of the new heap that contains all heapA and heapB nodes
 	 *
 	 */
-	static binomialNode<T>* mergeHeap(binomialNode<T>* heapA, binomialNode<T>* heapB);
+	static BinomialNode<T>* mergeHeap(BinomialNode<T>* heapA, BinomialNode<T>* heapB);
 	/*
 	 * order
 	 * 		Number of children incident on heap
 	 * 	heap
-	 * 		pointer to root of binomial heap
+	 * 		pointer to root of Binomial heap
 	 * 	returns
 	 * 		order or heap
 	*/
-	static int order(binomialNode<T>* heap);
+	static int order(BinomialNode<T>* heap);
+
 private:
 	/*
 	 * head
 	 * 		pointer to the head of the heap list where every
 	 * 		node is the root node of a heap
 	 */
-	binomialNode<T> * head;
+	BinomialNode<T> * head;
 };
+
+/*
+											~~~~ BINOMIAL NODE  ~~~~
+*/
+template <typename T>
+class BinomialNode
+{
+public:
+	friend class BinomialHeap<T>;
+	BinomialNode(T v, BinomialNode<T> * parent = 0);
+	~BinomialNode();
+
+	void addChild(BinomialNode<T>* child);
+	BinomialNode<T>* find(T v);
+	int size(int& i);
+	//used to append all nodes visited in this data structure into the other
+	void addTo(BinomialHeap<T>* other);
+private:
+	T value;
+	BinomialNode<T>* sibling, *child, * parent;
+	int order;
+};
+
+/*
+										~~~~ BINOMIAL NODE DEFINITIONS ~~~~
+*/
+
+template <typename T>
+BinomialNode<T>::BinomialNode(T v, BinomialNode<T> * p)
+{
+	value = v;
+	parent = p;
+	sibling = child = 0;
+	order=  0;
+}
+template <typename T>
+BinomialNode<T>::~BinomialNode()
+{
+
+//	if(child)
+		delete child;
+
+//	if(sibling)
+		delete sibling;
+
+}
+
+template<typename T>
+int BinomialNode<T>::size(int & i)
+{
+	++i;
+	if(sibling)
+		sibling->size(i);
+	if(child)
+		child->size(i);
+
+	return i;
+}
 
 
 template <typename T>
-binomialHeap<T>::binomialHeap()
+void BinomialNode<T>::addChild(BinomialNode<T>* childNode)
+{
+	if(childNode)
+	{
+		childNode->sibling = 0;
+		if(child)
+		{
+			BinomialNode<T>* temp = child;
+			while(temp->sibling)
+			{
+				temp = temp->sibling;
+			}
+			temp->sibling = childNode;
+		}
+		else
+		{
+			child = childNode;
+		}
+		//
+		++order;
+		childNode->parent = this;
+	}
+}
+template <typename T>
+BinomialNode<T>* BinomialNode<T>::find(T v)
+{
+	BinomialNode<T>* found = 0;
+	if(v == value)
+		return this;
+	else if(sibling)
+	{
+		found =  sibling->find(v);
+	}
+	if( value < v && ! found) //if v is larger, check children,
+	{
+		if(child)
+		{
+			found =  child->find(v);
+		}
+	}
+
+	return found;
+}
+
+template <typename T>
+void BinomialNode<T>::addTo(BinomialHeap<T> * other)
+{
+
+	other->insert(value);
+	if(sibling)
+	{
+		sibling->addTo(other);
+	}
+
+	if(child)
+	{
+		child->addTo(other);
+	}
+}
+
+/*
+									~~~~ BINOMIAL HEAP DEFINITIONS ~~~~
+*/
+template <typename T>
+BinomialHeap<T>::BinomialHeap()
 {
 	head = 0;
 }
 
 template <typename T>
-binomialHeap<T>::~binomialHeap()
+BinomialHeap<T>::BinomialHeap(const BinomialHeap& other)
 {
-	if (head)
-		delete head;
+	//invoke = op
+	*this = other;
 }
 
 template <typename T>
-bool binomialHeap<T>::isEmpty()
+BinomialHeap<T>::BinomialHeap(BinomialHeap&& other)
+{
+	head=0;
+	if(other.head)
+		other.head->addTo(this);
+	 other.clear();
+}
+
+template <typename T>
+BinomialHeap<T>& BinomialHeap<T>::operator=(const BinomialHeap& other)
+{
+	head=0;
+	if(other.head)
+		other.head->addTo(this);
+}
+
+
+
+template <typename T>
+BinomialHeap<T>::~BinomialHeap()
+{
+	clear();
+}
+template <typename T>
+void BinomialHeap<T>::clear()
+{
+	if (head)
+		delete head;
+	head =  0;
+}
+
+template <typename T>
+bool BinomialHeap<T>::isEmpty()
 {
 	return (head==0);
 }
 
 
 template <typename T>
-void binomialHeap<T>::insert(T v)
+void BinomialHeap<T>::insert(T v)
 {
-	binomialNode<T>*  p = head?  head->parent:  0;
-	binomialNode<T> * singleton = new binomialNode<T>(v, p);
+	BinomialNode<T>*  p = head?  head->parent:  0;
+	BinomialNode<T> * singleton = new BinomialNode<T>(v, p);
 	head = unionHeap(singleton, head);
 
 }
 
 template <typename T>
-T binomialHeap<T>::getMin()
+T BinomialHeap<T>::getMin()
 {
 	T min;
 	if(head)
 	{
-		binomialNode<T> * temp = head;
+		BinomialNode<T> * temp = head;
 		min = head->value;
 		while(temp)
 		{
@@ -316,13 +381,13 @@ T binomialHeap<T>::getMin()
 	return min;
 }
 template <typename T>
-T binomialHeap<T>::extractMin()
+T BinomialHeap<T>::extractMin()
 {
-	binomialNode<T>*prev=0, *min=0, *temp=0, *next=0;
+	BinomialNode<T>*prev=0, *min=0, *temp=0, *next=0;
 	T minValue;
 	if(head)
 	{
-		binomialNode<T>* minPrev = 0; //previous node of min node
+		BinomialNode<T>* minPrev = 0; //previous node of min node
 		min = head;
 		temp = head->sibling;
 		prev= head;
@@ -376,24 +441,16 @@ T binomialHeap<T>::extractMin()
 		temp = min = minPrev = next= 0;
 	}
 	else
-		std::cout << "\n\n ERROR couldn't not remove min!";
+		throw BinomialHeap<T>::Exception("Empty Heap!");
 
 	return minValue;
 }
-template <typename T>
-void binomialHeap<T>::print(std::ostream& out)
-{
-	if(head)
-	{
-		head->print(out);
-	}
 
-}
 /*
  *
  */
 template <typename T>
-int binomialHeap<T>::size()
+int BinomialHeap<T>::size()
 {
 	int i = 0;
 	if(head)
@@ -402,7 +459,7 @@ int binomialHeap<T>::size()
 }
 
 template <typename T>
-bool binomialHeap<T>::deleteKey(T v)
+bool BinomialHeap<T>::deleteKey(T v)
 {
 	if(decreaseKey(v, getMin()-1)) //set to min
 	{
@@ -413,14 +470,14 @@ bool binomialHeap<T>::deleteKey(T v)
 }
 
 template <typename T>
-bool binomialHeap<T>::decreaseKey(T v, T newV)
+bool BinomialHeap<T>::decreaseKey(T v, T newV)
 {
 	if(v > newV)
 	{
 		/*
 		 * maintains heap property by bubbling current until parent > current
 		 */
-		binomialNode<T>* current =  head->find(v), *parent = 0;
+		BinomialNode<T>* current =  head->find(v), *parent = 0;
 		T temp;
 		if(current)
 		{
@@ -437,15 +494,14 @@ bool binomialHeap<T>::decreaseKey(T v, T newV)
 			}
 			return true;
 		}
-		else
-			std::cout << "\nKey not found to decrease";
+		//else key not found return false
 	}
 	else
-		std::cout << "\nNew key should be less than old key!";
+		throw BinomialHeap<T>::Exception("New Key must be less than current key!");
 	return false;
 }
 template <typename T>
-binomialNode<T>* binomialHeap<T>::findKey(T v)
+BinomialNode<T>* BinomialHeap<T>::findKey(T v)
 {
 	if(head)
 	{
@@ -455,15 +511,15 @@ binomialNode<T>* binomialHeap<T>::findKey(T v)
 }
 
 template <typename T>
-int binomialHeap<T>::order(binomialNode<T>* heap)
+int BinomialHeap<T>::order(BinomialNode<T>* heap)
 {
 	if(!heap)
 		return -1;
 	int i = 0;
-	binomialNode<T>* child = heap->child;
+	BinomialNode<T>* child = heap->child;
 	while(child)
 	{
-		i++;
+		++i;
 		child = child->sibling;
 	}
 	return i;
@@ -471,7 +527,7 @@ int binomialHeap<T>::order(binomialNode<T>* heap)
 
 
 template <typename T>
-binomialNode<T>* binomialHeap<T>::unionHeap(binomialNode<T>* heapA, binomialNode<T>* heapB)
+BinomialNode<T>* BinomialHeap<T>::unionHeap(BinomialNode<T>* heapA, BinomialNode<T>* heapB)
 {
 	/*
 	 * Merges heapA and heapB assuming both are sorted by heap order
@@ -481,7 +537,7 @@ binomialNode<T>* binomialHeap<T>::unionHeap(binomialNode<T>* heapA, binomialNode
 	/*
 	 * get merged heap of heapA and heapB
 	 */
-	binomialNode<T>* heapU  = mergeHeap(heapA, heapB);
+	BinomialNode<T>* heapU  = mergeHeap(heapA, heapB);
 	if(heapU)
 	{
 		/*    prev   cur      next
@@ -489,7 +545,7 @@ binomialNode<T>* binomialHeap<T>::unionHeap(binomialNode<T>* heapA, binomialNode
 		 *            |        |
 		 *           |_|->    |_|->
 		 */
-		binomialNode<T>
+		BinomialNode<T>
 			*cur = heapU,  // current node to append before or after
 				*prev = 0, // node with sibling equal to current
 				*next = 0; // the next potential
@@ -537,10 +593,10 @@ binomialNode<T>* binomialHeap<T>::unionHeap(binomialNode<T>* heapA, binomialNode
 
 
 template <typename T>
-binomialNode<T>* binomialHeap<T>::mergeHeap(binomialNode<T>* heapA, binomialNode<T>* heapB)
+BinomialNode<T>* BinomialHeap<T>::mergeHeap(BinomialNode<T>* heapA, BinomialNode<T>* heapB)
 {
 	//modify to insert
-	binomialNode<T>* heapM = 0;//merged heap
+	BinomialNode<T>* heapM = 0;//merged heap
 
 	if(heapA || heapB)
 	{
@@ -554,7 +610,7 @@ binomialNode<T>* binomialHeap<T>::mergeHeap(binomialNode<T>* heapA, binomialNode
 		}
 		else
 		{
-			binomialNode<T>*temp, *next, *prev = 0,*cur = 0;
+			BinomialNode<T>*temp, *next, *prev = 0,*cur = 0;
 			//pick minimum heap root to be merged heap root
 			if(heapA->order > heapB->order)
 			{
